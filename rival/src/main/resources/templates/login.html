@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Log in')}"></head>
+<body class="centered">
+<main class="card narrow">
+    <p class="brand big">RIVAL</p>
+    <p class="muted">Train. Compete. Don't break the streak.</p>
+
+    <div th:replace="~{fragments :: flash}"></div>
+    <p class="msg error" th:if="${param.error}">Wrong username or password.</p>
+    <p class="msg ok" th:if="${param.logout}">You have been logged out.</p>
+
+    <form th:action="@{/login}" method="post" class="stack">
+        <label>Username
+            <input type="text" name="username" autofocus required>
+        </label>
+        <label>Password
+            <input type="password" name="password" required>
+        </label>
+        <button type="submit">Log in</button>
+    </form>
+
+    <p class="muted">New here? <a th:href="@{/register}">Create an account</a></p>
+    <p class="hint">Demo logins (password is <code>password</code>): <code>alex</code>, <code>sam</code>,
+        <code>jordan</code>, <code>riley</code>, and the trainer <code>coach</code>.
+        For the H2 console: <code>admin</code> / <code>admin</code>.</p>
+</main>
+</body>
+</html>

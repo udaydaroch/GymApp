@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <div th:replace="~{fragments :: flash}"></div>
+    <p class="msg info" th:if="${incomingRequests > 0}">
+        You have <span th:text="${incomingRequests}">1</span> rival request(s).
+        <a th:href="@{/rival}">Answer on the Rival page</a>
+    </p>
+
+    <div class="page-head">
+        <h1>Hi, <span th:text="${me.displayName}">Alex</span></h1>
+        <div class="actions">
+            <a class="button" th:href="@{/workouts/new}">Log a workout</a>
+            <a class="button ghost" th:href="@{/no-excuses}">No time? No Excuses</a>
+        </div>
+    </div>
+
+    <section class="tiles">
+        <div class="tile accent">
+            <span class="tile-label">Current streak</span>
+            <span class="tile-value"><span th:text="${me.activeStreak}">3</span> <small>days</small></span>
+            <span class="tile-note">Longest: <span th:text="${me.longestStreak}">5</span></span>
+        </div>
+        <div class="tile">
+            <span class="tile-label">Workouts this week</span>
+            <span class="tile-value" th:text="${workoutsThisWeek}">2</span>
+            <span class="tile-note">Monday to Sunday</span>
+        </div>
+        <div class="tile">
+            <span class="tile-label">Volume this week</span>
+            <span class="tile-value"><span th:text="${volumeThisWeek}">4200</span> <small>kg</small></span>
+            <span class="tile-note">reps x weight</span>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>This week's battle</h2>
+        <div th:if="${battle != null}">
+            <div class="versus">
+                <div class="side">
+                    <span class="who">You</span>
+                    <span class="score" th:text="${battle.myScore}">120</span>
+                </div>
+                <span class="vs">VS</span>
+                <div class="side">
+                    <span class="who" th:text="${battle.opponent.displayName}">Sam</span>
+                    <span class="score" th:text="${battle.theirScore}">95</span>
+                </div>
+            </div>
+            <p class="muted"><strong th:text="${battle.status}">You're ahead</strong>
+                · <span th:text="${battle.scoringType.label}">Improvement</span> scoring
+                · <a th:href="@{/rival}">Battle details</a></p>
+        </div>
+        <div th:if="${battle == null}">
+            <p class="muted">You don't have a rival yet. Send a request to the closest match to your level,
+                or pick someone yourself on the <a th:href="@{/people}">People</a> page.</p>
+            <form th:action="@{/rival/find}" method="post">
+                <button type="submit">Find me a rival</button>
+            </form>
+        </div>
+    </section>
+
+    <div class="columns">
+        <section class="card">
+            <h2>Badges</h2>
+            <p class="muted" th:if="${#lists.isEmpty(badges)}">No badges yet. Log a workout to earn your first.</p>
+            <ul class="badges">
+                <li th:each="b : ${badges}">
+                    <strong th:text="${b.type.title}">First Rep</strong>
+                    <span th:text="${b.type.description}">Logged your first workout</span>
+                </li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Personal records</h2>
+            <p class="muted" th:if="${#lists.isEmpty(records)}">Lift something with weight to set your first record.</p>
+            <table th:if="${!#lists.isEmpty(records)}">
+                <thead>
+                <tr><th>Exercise</th><th>Best</th><th>Set on</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${records}">
+                    <td th:text="${r.exercise.name}">Squat</td>
+                    <td><span th:text="${r.weight}">80.0</span> kg</td>
+                    <td th:text="${#temporals.format(r.achievedOn, 'd MMM')}">3 Oct</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</main>
+</body>
+</html>

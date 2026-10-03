@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Clients')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <h1>My clients</h1>
+
+    <section class="card">
+        <p class="muted" th:if="${#lists.isEmpty(clients)}">No members have signed up under you yet.</p>
+        <table th:if="${!#lists.isEmpty(clients)}">
+            <thead>
+            <tr><th>Client</th><th>Status</th><th>Last workout</th><th>This week</th><th>Streak</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${clients}">
+                <td th:text="${c.client.displayName}">Alex</td>
+                <td>
+                    <span class="pill" th:if="${c.status == 'On track'}">On track</span>
+                    <span class="pill warn" th:if="${c.status == 'Slipping'}">Slipping</span>
+                    <span class="pill bad" th:if="${c.status == 'At risk'}">At risk</span>
+                </td>
+                <td>
+                    <span th:if="${c.daysSinceLastWorkout == null}">Never</span>
+                    <span th:if="${c.daysSinceLastWorkout != null}"
+                          th:text="${c.daysSinceLastWorkout} + ' day(s) ago'">2 day(s) ago</span>
+                </td>
+                <td th:text="${c.workoutsThisWeek}">2</td>
+                <td th:text="${c.client.activeStreak}">3</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="hint">Slipping = no workout for 4 to 6 days. At risk = 7 days or more, or never trained.</p>
+    </section>
+
+    <section class="card">
+        <h2>This week's battle type</h2>
+        <p class="muted">Applies to this week's battles that involve your clients.</p>
+        <form th:action="@{/trainer/scoring}" method="post" class="row">
+            <select name="type">
+                <option th:each="t : ${scoringTypes}" th:value="${t}" th:text="${t.label}">Improvement</option>
+            </select>
+            <button type="submit">Set battle type</button>
+        </form>
+        <ul class="plain">
+            <li th:each="t : ${scoringTypes}">
+                <strong th:text="${t.label}">Improvement</strong>: <span th:text="${t.explanation}">How</span>
+            </li>
+        </ul>
+    </section>
+</main>
+</body>
+</html>

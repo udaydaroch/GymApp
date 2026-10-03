@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Routine')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <div class="page-head">
+        <h1 th:text="${routine.name}">Routine name</h1>
+        <div class="actions">
+            <a class="button" th:href="@{/routines/{id}/start(id=${routine.id})}">Start this workout</a>
+        </div>
+    </div>
+
+    <section class="card">
+        <p class="muted">
+            By <span th:text="${routine.owner.displayName}">Sam</span>
+            · <span th:text="${routine.shared} ? 'Shared' : 'Private'">Shared</span>
+            · copied <span th:text="${routine.timesCopied}">0</span> time(s)
+            <span th:if="${routine.copiedFrom != null}">
+                · based on <span th:text="${routine.copiedFrom.name}">Original</span>
+                by <span th:text="${routine.copiedFrom.owner.displayName}">Coach</span>
+            </span>
+        </p>
+        <p th:text="${routine.description}">Description</p>
+
+        <table>
+            <thead>
+            <tr><th>Exercise</th><th>Muscle group</th><th>Equipment</th><th>Sets</th><th>Reps</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${routine.items}">
+                <td th:text="${item.exercise.name}">Squat</td>
+                <td th:text="${item.exercise.muscleGroup}">Legs</td>
+                <td th:text="${item.exercise.equipment}">Barbell</td>
+                <td th:text="${item.sets}">3</td>
+                <td th:text="${item.reps}">8</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="actions spaced">
+            <form th:if="${!owner}" th:action="@{/routines/{id}/copy(id=${routine.id})}" method="post">
+                <button type="submit" class="ghost">Copy to my routines</button>
+            </form>
+            <form th:if="${owner}" th:action="@{/routines/{id}/share(id=${routine.id})}" method="post">
+                <button type="submit" class="ghost"
+                        th:text="${routine.shared} ? 'Make private' : 'Share with others'">Share</button>
+            </form>
+            <form th:if="${owner}" th:action="@{/routines/{id}/delete(id=${routine.id})}" method="post">
+                <button type="submit" class="danger">Delete</button>
+            </form>
+        </div>
+    </section>
+
+    <p><a th:href="@{/routines}">Back to routines</a></p>
+</main>
+</body>
+</html>

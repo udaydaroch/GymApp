@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Create account')}"></head>
+<body class="centered">
+<main class="card narrow">
+    <p class="brand big">RIVAL</p>
+    <h1>Create an account</h1>
+
+    <form th:action="@{/register}" th:object="${registerForm}" method="post" class="stack">
+        <label>Username
+            <input type="text" th:field="*{username}" autofocus>
+            <span class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+        </label>
+        <label>Display name
+            <input type="text" th:field="*{displayName}">
+            <span class="field-error" th:if="${#fields.hasErrors('displayName')}" th:errors="*{displayName}"></span>
+        </label>
+        <label>Password
+            <input type="password" th:field="*{password}">
+            <span class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+        </label>
+        <label>I am a
+            <select th:field="*{role}">
+                <option value="MEMBER">Member</option>
+                <option value="TRAINER">Trainer</option>
+            </select>
+        </label>
+        <label>My trainer (members only, optional)
+            <select th:field="*{trainerId}">
+                <option value="">No trainer</option>
+                <option th:each="t : ${trainers}" th:value="${t.id}" th:text="${t.displayName}">Trainer</option>
+            </select>
+        </label>
+        <button type="submit">Create account</button>
+    </form>
+
+    <p class="muted">Already have an account? <a th:href="@{/login}">Log in</a></p>
+</main>
+</body>
+</html>

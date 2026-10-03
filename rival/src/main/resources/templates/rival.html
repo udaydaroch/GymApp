@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Rival')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <h1>Rival</h1>
+
+    <section class="card" th:if="${!#lists.isEmpty(incoming)}">
+        <h2>Rival requests for you</h2>
+        <ul class="list">
+            <li th:each="r : ${incoming}">
+                <div>
+                    <strong th:text="${r.fromUser.displayName}">Riley</strong> wants to be your rival
+                    <span class="muted" th:text="${#temporals.format(r.createdOn, 'd MMM')}">3 Oct</span>
+                </div>
+                <div class="actions">
+                    <form th:action="@{/rival/requests/{id}/accept(id=${r.id})}" method="post">
+                        <button type="submit" class="small">Accept</button>
+                    </form>
+                    <form th:action="@{/rival/requests/{id}/decline(id=${r.id})}" method="post">
+                        <button type="submit" class="ghost small">Decline</button>
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <section class="card" th:if="${!#lists.isEmpty(outgoing)}">
+        <h2>Requests you've sent</h2>
+        <ul class="list">
+            <li th:each="r : ${outgoing}">
+                <div>
+                    Waiting for <strong th:text="${r.toUser.displayName}">Jordan</strong>
+                    <span class="muted" th:text="${#temporals.format(r.createdOn, 'd MMM')}">3 Oct</span>
+                </div>
+                <form th:action="@{/rival/requests/{id}/cancel(id=${r.id})}" method="post">
+                    <button type="submit" class="ghost small">Cancel</button>
+                </form>
+            </li>
+        </ul>
+    </section>
+
+    <section class="card" th:if="${battle == null}">
+        <h2>No rival yet</h2>
+        <p class="muted">A rivalry starts when the other person accepts your request.
+            Pick someone you follow on the <a th:href="@{/people}">People</a> page, or let the app
+            send a request to the free member whose recent training is closest to yours.
+            Each week runs Monday to Sunday, and the default scoring compares you to your own usual week,
+            so it stays fair whatever your level.</p>
+        <form th:action="@{/rival/find}" method="post">
+            <button type="submit">Find me a rival</button>
+        </form>
+    </section>
+
+    <div th:if="${battle != null}">
+        <section class="card">
+            <h2>
+                Week of <span th:text="${#temporals.format(battle.weekStart, 'd MMM')}">28 Sep</span>
+                to <span th:text="${#temporals.format(battle.weekEnd, 'd MMM')}">4 Oct</span>
+            </h2>
+            <div class="versus large">
+                <div class="side">
+                    <span class="who">You</span>
+                    <span class="score" th:text="${battle.myScore}">120</span>
+                </div>
+                <span class="vs">VS</span>
+                <div class="side">
+                    <span class="who" th:text="${battle.opponent.displayName}">Sam</span>
+                    <span class="score" th:text="${battle.theirScore}">95</span>
+                </div>
+            </div>
+            <p><strong th:text="${battle.status}">You're ahead</strong></p>
+            <p class="muted">
+                <strong th:text="${battle.scoringType.label}">Improvement</strong> scoring:
+                <span th:text="${battle.scoringType.explanation}">How it works</span>
+            </p>
+            <div class="actions">
+                <a class="button" th:href="@{/workouts/new}">Log a workout</a>
+                <a class="button ghost" th:href="@{/no-excuses}">No Excuses workout</a>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Past weeks</h2>
+            <p class="muted">
+                All-time: you <strong th:text="${battle.myWins}">1</strong>,
+                <span th:text="${battle.opponent.displayName}">Sam</span>
+                <strong th:text="${battle.theirWins}">0</strong>
+            </p>
+            <p class="muted" th:if="${#lists.isEmpty(battle.pastBattles)}">No finished weeks yet.</p>
+            <table th:if="${!#lists.isEmpty(battle.pastBattles)}">
+                <thead>
+                <tr><th>Week of</th><th>Type</th><th>You</th><th>Them</th><th>Result</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="b : ${battle.pastBattles}"
+                    th:with="iAmA=${b.rivalry.userA.id == me.id}">
+                    <td th:text="${#temporals.format(b.weekStart, 'd MMM')}">21 Sep</td>
+                    <td th:text="${b.scoringType.label}">Improvement</td>
+                    <td th:text="${iAmA} ? ${b.scoreA} : ${b.scoreB}">110</td>
+                    <td th:text="${iAmA} ? ${b.scoreB} : ${b.scoreA}">90</td>
+                    <td>
+                        <span th:if="${b.winner == null}">Draw</span>
+                        <span class="pill" th:if="${b.winner != null and b.winner.id == me.id}">Won</span>
+                        <span class="pill off" th:if="${b.winner != null and b.winner.id != me.id}">Lost</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <form th:action="@{/rival/end}" method="post">
+            <button type="submit" class="ghost small">End this rivalry</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

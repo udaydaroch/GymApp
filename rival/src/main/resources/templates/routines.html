@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Routines')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <div class="page-head">
+        <h1>Routines</h1>
+        <div class="actions">
+            <a class="button" th:href="@{/routines/new}">New routine</a>
+        </div>
+    </div>
+
+    <section class="card">
+        <h2>My routines</h2>
+        <p class="muted" th:if="${#lists.isEmpty(mine)}">You have no routines yet. Create one, or copy one below.</p>
+        <ul class="list">
+            <li th:each="r : ${mine}">
+                <div>
+                    <a th:href="@{/routines/{id}(id=${r.id})}" th:text="${r.name}">Routine name</a>
+                    <span class="pill" th:if="${r.shared}">Shared</span>
+                    <span class="pill off" th:if="${!r.shared}">Private</span>
+                    <p class="muted" th:text="${r.description}">Description</p>
+                </div>
+                <a class="button small" th:href="@{/routines/{id}/start(id=${r.id})}">Start</a>
+            </li>
+        </ul>
+    </section>
+
+    <section class="card">
+        <h2>Shared by others</h2>
+        <p class="muted" th:if="${#lists.isEmpty(shared)}">Nobody has shared a routine yet.</p>
+        <ul class="list">
+            <li th:each="r : ${shared}">
+                <div>
+                    <a th:href="@{/routines/{id}(id=${r.id})}" th:text="${r.name}">Routine name</a>
+                    <span class="muted">by <span th:text="${r.owner.displayName}">Sam</span>
+                        · copied <span th:text="${r.timesCopied}">2</span> time(s)</span>
+                    <p class="muted" th:text="${r.description}">Description</p>
+                </div>
+                <form th:action="@{/routines/{id}/copy(id=${r.id})}" method="post">
+                    <button type="submit" class="small ghost">Copy to mine</button>
+                </form>
+            </li>
+        </ul>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('New routine')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <h1>New routine</h1>
+
+    <form th:action="@{/routines}" th:object="${routineForm}" method="post" class="card">
+        <!-- Pressing Enter in a field uses the first submit button in the form.
+             This hidden one makes Enter save, instead of triggering a row's Remove button. -->
+        <button type="submit" class="hidden-submit" tabindex="-1" aria-hidden="true"></button>
+        <p class="msg error" th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</p>
+
+        <div class="stack">
+            <label>Name
+                <input type="text" th:field="*{name}">
+                <span class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+            </label>
+            <label>Description
+                <input type="text" th:field="*{description}">
+                <span class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+            </label>
+            <label class="check">
+                <input type="checkbox" name="shared" value="true" th:checked="*{shared}">
+                Share with other users so they can copy it
+            </label>
+        </div>
+
+        <h2>Exercises</h2>
+        <p class="hint">Up to 30 exercises. Leave unused rows blank.</p>
+        <table class="form-table">
+            <thead>
+            <tr><th>Exercise</th><th>Sets</th><th>Reps</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="row, s : *{rows}">
+                <td>
+                    <select th:field="*{rows[__${s.index}__].exerciseId}">
+                        <option value="">Choose exercise</option>
+                        <option th:each="e : ${exercises}" th:value="${e.id}"
+                                th:text="${e.muscleGroup} + ' · ' + ${e.name}">Legs · Squat</option>
+                    </select>
+                </td>
+                <td><input type="number" th:field="*{rows[__${s.index}__].sets}" min="1" max="10"></td>
+                <td><input type="number" th:field="*{rows[__${s.index}__].reps}" min="1" max="100"></td>
+                <td><button type="submit" name="removeRow" th:value="${s.index}" class="ghost small"
+                            formnovalidate>Remove</button></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="actions">
+            <button type="submit">Save routine</button>
+            <button type="submit" name="addRow" value="1" class="ghost" formnovalidate
+                    th:if="${!routineForm.full}">Add another exercise</button>
+            <span class="hint"><span th:text="${#lists.size(routineForm.rows)}">6</span> of 30 rows</span>
+        </div>
+    </form>
+</main>
+</body>
+</html>

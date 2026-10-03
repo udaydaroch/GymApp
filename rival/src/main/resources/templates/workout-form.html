@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Log a workout')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <h1>Log a workout</h1>
+
+    <form th:action="@{/workouts}" th:object="${workoutForm}" method="post" class="card">
+        <!-- Pressing Enter in a field uses the first submit button in the form.
+             This hidden one makes Enter save, instead of triggering a row's Remove button. -->
+        <button type="submit" class="hidden-submit" tabindex="-1" aria-hidden="true"></button>
+        <p class="msg error" th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</p>
+
+        <div class="grid2">
+            <label>Duration (minutes)
+                <input type="number" th:field="*{durationMinutes}" min="1" max="300">
+                <span class="field-error" th:if="${#fields.hasErrors('durationMinutes')}"
+                      th:errors="*{durationMinutes}"></span>
+            </label>
+            <label>Energy (1 drained, 5 great)
+                <select th:field="*{energy}">
+                    <option th:each="n : ${#numbers.sequence(1, 5)}" th:value="${n}" th:text="${n}">3</option>
+                </select>
+            </label>
+        </div>
+
+        <!-- The hidden _posted field tells Spring the box was on the form, so that
+             leaving it unticked means "false" rather than "keep the default" -->
+        <label class="check spaced-below">
+            <input type="checkbox" name="posted" value="true" th:checked="*{posted}">
+            <input type="hidden" name="_posted" value="on">
+            Post this workout to the feed
+        </label>
+
+        <h2>Sets</h2>
+        <p class="hint">One row per set, up to 30. Leave unused rows blank. Weight 0 means bodyweight.</p>
+        <table class="form-table">
+            <thead>
+            <tr><th>Exercise</th><th>Reps</th><th>Weight (kg)</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="row, s : *{rows}">
+                <td>
+                    <select th:field="*{rows[__${s.index}__].exerciseId}">
+                        <option value="">Choose exercise</option>
+                        <option th:each="e : ${exercises}" th:value="${e.id}"
+                                th:text="${e.muscleGroup} + ' · ' + ${e.name}">Legs · Squat</option>
+                    </select>
+                </td>
+                <td><input type="number" th:field="*{rows[__${s.index}__].reps}" min="1" max="200"></td>
+                <td><input type="number" th:field="*{rows[__${s.index}__].weight}" min="0" max="1000" step="0.5"></td>
+                <td><button type="submit" name="removeRow" th:value="${s.index}" class="ghost small"
+                            formnovalidate>Remove</button></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="actions">
+            <button type="submit">Log workout</button>
+            <button type="submit" name="addRow" value="1" class="ghost" formnovalidate
+                    th:if="${!workoutForm.full}">Add another row</button>
+            <span class="hint"><span th:text="${#lists.size(workoutForm.rows)}">8</span> of 30 rows</span>
+        </div>
+    </form>
+</main>
+</body>
+</html>

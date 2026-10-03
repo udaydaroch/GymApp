@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Feed')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <div class="page-head">
+        <h1>Feed</h1>
+        <div class="actions">
+            <a class="button" th:href="@{/workouts/new}">Log a workout</a>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <a th:href="@{/feed}" th:classappend="${!followingOnly} ? 'active'">Everyone</a>
+        <a th:href="@{/feed(filter='following')}" th:classappend="${followingOnly} ? 'active'">Following</a>
+    </div>
+
+    <p class="muted" th:if="${#lists.isEmpty(items) and followingOnly}">
+        Nothing here yet. Follow people from the Everyone tab or the <a th:href="@{/people}">People</a> page.</p>
+    <p class="muted" th:if="${#lists.isEmpty(items) and !followingOnly}">Nobody has posted a workout yet.</p>
+
+    <section class="card post" th:each="item : ${items}">
+        <div class="post-head">
+            <div>
+                <strong th:text="${item.log.user.displayName}">Alex</strong>
+                <span class="pill off" th:if="${item.mine}">You</span>
+                <span class="muted" th:text="${#temporals.format(item.log.workoutDate, 'EEE d MMM')}">Fri 2 Oct</span>
+            </div>
+            <form th:if="${!item.mine and !item.followingAuthor}"
+                  th:action="@{/people/{id}/follow(id=${item.log.user.id})}" method="post">
+                <input type="hidden" name="from" value="feed">
+                <button type="submit" class="ghost small">Follow</button>
+            </form>
+            <span class="muted" th:if="${!item.mine and item.followingAuthor}">Following</span>
+        </div>
+
+        <p class="post-stats">
+            <span th:text="${item.log.durationMinutes}">45</span> min ·
+            <span th:text="${item.log.setCount}">9</span> sets ·
+            <span th:text="${item.log.totalVolume}">3500</span> kg volume ·
+            energy <span th:text="${item.log.energy}">3</span>/5
+        </p>
+        <p class="muted" th:text="${item.exerciseSummary}">Squat, Bench Press, Bent-over Row</p>
+
+        <form th:action="@{/feed/{id}/like(id=${item.log.id})}" method="post" class="like">
+            <input type="hidden" name="filter" th:value="${followingOnly} ? 'following' : ''">
+            <button type="submit" class="small" th:classappend="${item.likedByMe} ? '' : 'ghost'"
+                    th:text="${item.likedByMe} ? 'Liked' : 'Like'">Like</button>
+            <span class="muted"><span th:text="${item.likeCount}">3</span> like(s)</span>
+        </form>
+    </section>
+</main>
+</body>
+</html>

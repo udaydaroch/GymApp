@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('No Excuses')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <h1>No Excuses</h1>
+    <p class="muted">Tired, busy, or stuck at home? Answer four questions and get the smallest workout
+        that still keeps your streak alive and scores against your rival.</p>
+
+    <form th:action="@{/no-excuses}" th:object="${generatorForm}" method="post" class="card">
+        <p class="msg error" th:each="err : ${#fields.globalErrors()}" th:text="${err}">Error</p>
+
+        <div class="grid2">
+            <label>Minutes you have
+                <input type="number" th:field="*{minutes}" min="5" max="120">
+                <span class="field-error" th:if="${#fields.hasErrors('minutes')}" th:errors="*{minutes}"></span>
+            </label>
+            <label>Energy right now (1 drained, 5 great)
+                <select th:field="*{energy}">
+                    <option th:each="n : ${#numbers.sequence(1, 5)}" th:value="${n}" th:text="${n}">3</option>
+                </select>
+            </label>
+        </div>
+
+        <fieldset>
+            <legend>Equipment near you (bodyweight is always included)</legend>
+            <label class="check"><input type="checkbox" name="equipment" value="Dumbbells"
+                                        th:checked="${#lists.contains(generatorForm.equipment, 'Dumbbells')}"> Dumbbells</label>
+            <label class="check"><input type="checkbox" name="equipment" value="Barbell"
+                                        th:checked="${#lists.contains(generatorForm.equipment, 'Barbell')}"> Barbell</label>
+            <label class="check"><input type="checkbox" name="equipment" value="Machine"
+                                        th:checked="${#lists.contains(generatorForm.equipment, 'Machine')}"> Machines</label>
+        </fieldset>
+
+        <label>Anything sore?
+            <select th:field="*{sore}">
+                <option value="">Nothing</option>
+                <option value="Legs">Legs</option>
+                <option value="Chest">Chest</option>
+                <option value="Back">Back</option>
+                <option value="Shoulders">Shoulders</option>
+                <option value="Arms">Arms</option>
+                <option value="Core">Core</option>
+            </select>
+        </label>
+
+        <button type="submit">Build my workout</button>
+    </form>
+</main>
+</body>
+</html>

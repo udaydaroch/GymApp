@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- Shared <head>. Used as: th:replace="~{fragments :: head('Page title')}" -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · Rival'">Rival</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<!-- Top navigation bar -->
+<header th:fragment="nav" class="topbar">
+    <a class="brand" th:href="@{/}">RIVAL</a>
+    <nav>
+        <a th:href="@{/}">Dashboard</a>
+        <a th:href="@{/feed}">Feed</a>
+        <a th:href="@{/people}">People</a>
+        <a th:href="@{/workouts}">Workouts</a>
+        <a th:href="@{/routines}">Routines</a>
+        <a th:href="@{/rival}">Rival</a>
+        <a th:href="@{/no-excuses}">No Excuses</a>
+        <a sec:authorize="hasRole('TRAINER')" th:href="@{/trainer}">Clients</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/h2-console}" target="_blank">H2 console</a>
+    </nav>
+    <form th:action="@{/logout}" method="post" class="logout">
+        <span sec:authentication="name">user</span>
+        <button type="submit" class="ghost small">Log out</button>
+    </form>
+</header>
+
+<!-- One-off messages set by controllers -->
+<div th:fragment="flash">
+    <p class="msg ok" th:if="${message}" th:text="${message}">Saved.</p>
+    <p class="msg error" th:if="${error}" th:text="${error}">Something went wrong.</p>
+    <p class="msg info" th:if="${notice}" th:text="${notice}">Note.</p>
+</div>
+
+</body>
+</html>

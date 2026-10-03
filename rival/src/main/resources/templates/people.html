@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('People')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <h1>People</h1>
+    <p class="muted">Follow someone to see their workouts in your Following feed.
+        Once you follow them, you can send a rival request.</p>
+
+    <section class="card">
+        <p class="muted" th:if="${#lists.isEmpty(people)}">Nobody else has joined yet.</p>
+        <table th:if="${!#lists.isEmpty(people)}">
+            <thead>
+            <tr><th>Name</th><th>Streak</th><th>Follow</th><th>Rival</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${people}">
+                <td>
+                    <strong th:text="${p.user.displayName}">Sam</strong>
+                    <span class="pill off" th:if="${p.user.role.name() == 'TRAINER'}">Trainer</span>
+                    <span class="hint" th:if="${p.followsMe}">follows you</span>
+                </td>
+                <td><span th:text="${p.user.activeStreak}">3</span> day(s)</td>
+                <td>
+                    <form th:if="${!p.following}" th:action="@{/people/{id}/follow(id=${p.user.id})}" method="post">
+                        <button type="submit" class="small">Follow</button>
+                    </form>
+                    <form th:if="${p.following}" th:action="@{/people/{id}/unfollow(id=${p.user.id})}" method="post">
+                        <button type="submit" class="ghost small">Unfollow</button>
+                    </form>
+                </td>
+                <td>
+                    <form th:if="${p.rivalState == 'CAN_REQUEST'}"
+                          th:action="@{/people/{id}/rival-request(id=${p.user.id})}" method="post">
+                        <button type="submit" class="small">Send rival request</button>
+                    </form>
+                    <span class="pill" th:if="${p.rivalState == 'RIVALS'}">Your rival</span>
+                    <span class="muted" th:if="${p.rivalState == 'SENT'}">Request sent</span>
+                    <a th:if="${p.rivalState == 'RECEIVED'}" th:href="@{/rival}">Wants to be your rival</a>
+                    <span class="hint" th:if="${p.rivalState == 'I_HAVE_RIVAL'}">You already have a rival</span>
+                    <span class="hint" th:if="${p.rivalState == 'THEY_HAVE_RIVAL'}">Has a rival</span>
+                    <span class="hint" th:if="${p.rivalState == 'FOLLOW_FIRST'}">Follow first</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Workouts')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main class="page">
+    <div th:replace="~{fragments :: flash}"></div>
+
+    <div class="page-head">
+        <h1>Workout history</h1>
+        <div class="actions">
+            <a class="button" th:href="@{/workouts/new}">Log a workout</a>
+        </div>
+    </div>
+
+    <p class="muted" th:if="${#lists.isEmpty(logs)}">Nothing logged yet.</p>
+
+    <section class="card" th:each="log : ${logs}">
+        <div class="log-head">
+            <h2 th:text="${#temporals.format(log.workoutDate, 'EEEE d MMMM')}">Friday 2 October</h2>
+            <span class="muted">
+                <span th:text="${log.durationMinutes}">45</span> min ·
+                energy <span th:text="${log.energy}">3</span>/5 ·
+                <span th:text="${log.totalVolume}">3500</span> kg volume ·
+                <span th:text="${log.posted} ? 'posted' : 'private'">posted</span>
+            </span>
+        </div>
+        <table>
+            <thead>
+            <tr><th>Exercise</th><th>Reps</th><th>Weight</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="set : ${log.sets}">
+                <td th:text="${set.exercise.name}">Squat</td>
+                <td th:text="${set.reps}">8</td>
+                <td th:text="${set.weight > 0} ? ${set.weight} + ' kg' : 'Bodyweight'">60.0 kg</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
